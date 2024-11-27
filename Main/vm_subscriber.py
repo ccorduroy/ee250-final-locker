@@ -9,8 +9,8 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code "+str(rc))
 
     #subscribe to the ultrasonic ranger topic here
-    client.subscribe("samardzi/ultrasonicRanger")
-    client.message_callback_add("samardzi/ultrasonicRanger", ultra_Callback)
+    client.subscribe("samardzi/potentiometer")
+    client.message_callback_add("samardzi/potentiometer", pot_Callback)
 
     #subribe to button
     client.subscribe("samardzi/button")
@@ -22,9 +22,11 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
 
-def ultra_Callback(client, userdata, message):
+def pot_Callback(client, userdata, message):
     #if message.payloadFormatIndicator == 1:
-    print("VM: " + message.payload.decode('utf-8') + " cm")
+    print("Locked in: " + message.payload.decode('utf-8'))
+
+
 
 def button_Callback(client, userdata, message):
     #if message.payloadFormatIndicator == 1:
