@@ -52,13 +52,13 @@ if __name__ == '__main__':
 
         #read potentionmeter
         pot = grovepi.analogRead(potentiometer)
-        number = pot / 1
+        num = int(pot / 100)     # splits potentiometer into 10 segments
 
         #only publish if there is a change in pot value
-        if(number !=  temp):
+        if(num !=  temp):
             #client.publish("samardzi/potentiometer", number)
-            temp = number
-            print(number)
+            temp = num
+            print(num)
 
         # if button pressed (HIGH signal detected), publish confirmation to button
         if (grovepi.digitalRead(button) > 0):
