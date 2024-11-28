@@ -15,11 +15,17 @@ grovepi.pinMode(button, "INPUT")
 grovepi.pinMode(potentiometer, "INPUT")
 
 
-
 #Default message callback. Please use custom callbacks.
 def on_message(client, userdata, msg):
     print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
 
+#Default message callback. Please use custom callbacks.
+def callback_button(client, userdata, msg):
+    print("[" + msg.topic + "]" + str(msg.payload, "utf-8"))
+
+#Default message callback. Please use custom callbacks.
+def callback_pot(client, userdata, msg):
+    print("[" + msg.topic + "]" + str(msg.payload, "utf-8"))
 
 #----------------------------------------------------------------------
 
@@ -29,19 +35,21 @@ if __name__ == '__main__':
     client.on_message = on_message
     client.loop_start()
 
+    temp = 0
+
     while True:
         time.sleep(1)
 
         #read potentionmeter
         pot = grovepi.analogRead(potentiometer)
 
-        #only publish if change was made
+        #only publish if there is a change in pot value
         if(pot !=  temp):
             client.publish("samardzi/potentiometer", pot)
             temp = pot
+            print(pot)
 
-
-        # if button pressed(HIGH signal detected)
+        # if button pressed (HIGH signal detected), publish confirmation to button
         if (grovepi.digitalRead(button) > 0):
-            client.publish("samardzi/button", "Button Pressed!")
-            
+            client.publish("samardzi/button", 1)
+            print("confirm")
