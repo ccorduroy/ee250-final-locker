@@ -9,7 +9,7 @@ sys.path.append('../../Software/Python/grove_rgb_lcd')
 import grovepi
 
 # --- ports
-button = 3 #A3
+button = 1 #A1
 potentiometer = 0 #A0
 grovepi.pinMode(button, "INPUT")
 grovepi.pinMode(potentiometer, "INPUT")
@@ -42,15 +42,15 @@ if __name__ == '__main__':
 
         #read potentionmeter
         pot = grovepi.analogRead(potentiometer)
-        number = pot / 10  # integer division 0-9
+        number = pot / 1
 
         #only publish if there is a change in pot value
         if(number !=  temp):
-            client.publish("samardzi/potentiometer", number)
+            #client.publish("samardzi/potentiometer", number)
             temp = number
             print(number)
 
         # if button pressed (HIGH signal detected), publish confirmation to button
         if (grovepi.digitalRead(button) > 0):
-            client.publish("samardzi/button", 1)
+            #client.publish("samardzi/button", 1)
             print("confirm")
