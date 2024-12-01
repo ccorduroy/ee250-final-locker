@@ -1,12 +1,13 @@
 """EE 250L Lab 04 Starter Code
 
-Run rpi_pub_and_sub.py on your Raspberry Pi."""
+Run rpi_pubsub.py on your Raspberry Pi."""
 
 import paho.mqtt.client as mqtt
 import time, sys
 sys.path.append('../../Software/Python/')
 sys.path.append('../../Software/Python/grove_rgb_lcd')
 import grovepi
+import ssl
 
 # --- ports
 button = 1 #A1
@@ -36,9 +37,16 @@ def key_callback(client, userdata, message):
 if __name__ == '__main__':
     # this section is covered in publisher_and_subscriber_example.py
     client = mqtt.Client()
+
+    # enable TLS, disable client-side certificates
+    client.tls_set(
+        tls_version = ssl.PROTOCOL_TLSv1_2
+    )
+
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(host="broker.emqx.io", port=1883, keepalive=60)
+    client.connect(host="broker.emqx.io", port=8883, keepalive=60)
+    # PORT 8883 enables TLS encryption for data using this socket.
     client.loop_start()
 
     temp = 0

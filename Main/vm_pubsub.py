@@ -1,14 +1,16 @@
 """EE 250L Lab 04 Starter Code
 
-Run vm_subscriber.py in a separate terminal on your VM."""
+Run vm_pubsub.py in a separate terminal on your VM."""
 
 import paho.mqtt.client as mqtt
 import time
 from pynput import keyboard
 import threading
+import ssl
 
 POT = None
 KEY = None
+
 LOCK_SEQ = [3, 15, 2, 10, 8]
 CURR_SEQ = []
 
@@ -59,9 +61,17 @@ if __name__ == '__main__':
 
     #this section is covered in publisher_and_subscriber_example.py
     client = mqtt.Client()
+
+    # enable TLS, disable client-side certificates
+    client.tls_set(
+        tls_version = ssl.PROTOCOL_TLSv1_2
+    )
+
+    # begin connection
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(host="broker.emqx.io", port=1883, keepalive=60)
+    client.connect(host="broker.emqx.io", port=8883, keepalive=60)
+    # PORT 8883 enables TLS encryption for data using this socket.
     client.loop_start()
 
     while True:
