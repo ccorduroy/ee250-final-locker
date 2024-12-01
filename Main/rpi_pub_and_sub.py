@@ -18,14 +18,18 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code " + str(rc))
 
     #subscribe to topics of interest here
-    #client.subscribe("samardzi/button")    # add back callback
-    #client.message_callback_add("samardzi/button", button_callback )
+    client.subscribe("samardzi/key")    # add back callback
+    client.message_callback_add("samardzi/key", key_callback )
 
     print("Transmitting Potentiometer data (MQTT):")
 
 #Default message callback. Please use custom callbacks.
 def on_message(client, userdata, msg):
     print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
+
+def key_callback(client, userdata, message):
+    #if message.payloadFormatIndicator == 1:
+    print(message.payload.decode('utf-8'))
 
 #----------------------------------------------------------------------
 

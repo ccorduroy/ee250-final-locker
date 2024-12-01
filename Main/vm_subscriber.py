@@ -4,6 +4,8 @@ Run vm_subscriber.py in a separate terminal on your VM."""
 
 import paho.mqtt.client as mqtt
 import time
+from pynput import keyboard
+import threading
 
 POT = None
 KEY = None
@@ -16,7 +18,7 @@ def on_connect(client, userdata, flags, rc):
 
     #subscribe to the ultrasonic ranger topic here
     client.subscribe("samardzi/pot")
-    client.message_callback_add("samardzi/pot", pot_Callback)
+    client.message_callback_add("samardzi/pot", pot_callback)
 
     print("Receiving Potentiometer data (MQTT)")
 
@@ -24,11 +26,12 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
 
-def pot_Callback(client, userdata, message):
+def pot_callback(client, userdata, message):
     #if message.payloadFormatIndicator == 1:
     print("rec: " + message.payload.decode('utf-8'))
     global POT 
     POT =  int(message.payload.decode('utf-8'))
+
 
 # parallel task/thread to read keyboard input
 def kbd_thread():
@@ -37,6 +40,7 @@ def kbd_thread():
         # must hit enter to complete the input
         k = input("")
         if k == 'a':
+            client.publish("samardzi/key", "(click)")
             print("(click)")
             KEY = 1
         else:
@@ -62,12 +66,11 @@ if __name__ == '__main__':
 
     while True:
         #print("delete this line")
-        time.sleep(1)
+        time.sleep(0.5)
 
-        #adds potentimeter value to list.
-        #if POT is 0 and button is pushed
-        #list is reset
-        if(KEY == 1):
+        #adds potentimeter value to list
+        # if POT is 0 and button is pushed list is reset
+        if(KEY == 1 and POT is not None):
             if(POT == 0):
                 print("Resetting input.")
                 CURR_SEQ.clear()
@@ -75,6 +78,7 @@ if __name__ == '__main__':
                 CURR_SEQ.append(POT)
                 print("Current sequence:")
                 print(CURR_SEQ)
+            KEY = 0
 
         #if current sequence is equal to lock
         if(CURR_SEQ == LOCK_SEQ):
