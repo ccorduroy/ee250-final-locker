@@ -13,22 +13,37 @@ app = Flask(__name__)
 
 POT = None
 KEY = None
+UNLOCKED = None
 
 LOCK_SEQ = [3, 15, 2, 10, 8]
 CURR_SEQ = []
+
+JSON = "lockdata.json"
 
 #route to collect most recent sequence
 #in grafana: http://<your-ip>:3000/api/lock_sequences
 @app.route('/api/lock_sequences', methods = ['GET'])
 def curr_sequences():
-    sequences = {
-        #Note: lock_seq is sent everytime everytime bc the json api plug in
-        #in grafana does not keep record of previous queries
-        "LOCK_SEQ": LOCK_SEQ,
-        "CURR_SEQ": CURR_SEQ
-    }
-    return jsonify(sequences)
+    return JSON
 
+
+
+def json_updater_thread():
+    while True:
+        sequences = {
+            #Note: lock_seq is sent everytime everytime bc the json api plug in
+            #in grafana does not keep record of previous queries
+            "LOCK_SEQ": LOCK_SEQ,
+            "CURR_SEQ": CURR_SEQ,
+            "POT": POT,
+            "UNLOCKED": UNLOCKED,
+            "timestamp": int(time.time())
+        }
+
+        with open(JSON, "w") as f:
+            json.dump(sequences, f, indent = 4)
+
+        time.sleep(0.5)    
 
 
 def on_connect(client, userdata, flags, rc):
@@ -67,10 +82,15 @@ def kbd_thread():
 
 if __name__ == '__main__':
 
+    UNLOCKED = 0
+
+    
     thread = threading.Thread(target=kbd_thread)
+    json_thread = threading.Thread(target = json_updater_thread, daemon=True)
     # thread.daemon = True
     # start the thread executing
     thread.start()
+    json_thread.start()
 
     
 
@@ -97,12 +117,14 @@ if __name__ == '__main__':
         #print("delete this line")
         time.sleep(0.5)
 
+
         #adds potentimeter value to list
         # if POT is 0 and button is pushed list is reset
         if(KEY == 1 and POT is not None):
             if(POT == 0):
                 print("Resetting input.")
                 CURR_SEQ.clear()
+                UNLOCKED = 0
             else:
                 print("++ " + str(POT))
                 CURR_SEQ.append(POT)
@@ -113,9 +135,18 @@ if __name__ == '__main__':
         #if current sequence is equal to lock
         if(CURR_SEQ == LOCK_SEQ):
             print("Unlocked!")
+            UNLOCKED = 1
+            time.sleep(3)
+            print("Resetting input")
+            CURR_SEQ.clear()
+            continue
 
 
         #if current sequence exceeds length
         if(len(CURR_SEQ) > len(LOCK_SEQ)):
             print("Failed; Resetting input.")
+            UNLOCKED = 0
             CURR_SEQ.clear()
+            time.sleep(1)
+            print("Resetting Input")
+            continue
