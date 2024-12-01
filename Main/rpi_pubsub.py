@@ -35,7 +35,7 @@ def key_callback(client, userdata, message):
 #----------------------------------------------------------------------
 
 if __name__ == '__main__':
-    # this section is covered in publisher_and_subscriber_example.py
+
     client = mqtt.Client()
 
     # enable TLS, disable client-side certificates
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     temp = 0
 
     while True:
-        time.sleep(1)
+        time.sleep(0.25)
 
         #read potentionmeter
         pot = grovepi.analogRead(potentiometer)
@@ -70,8 +70,3 @@ if __name__ == '__main__':
             #print("confirm")
 
         #print(grovepi.digitalRead(button))
-
-        #INSTALL: PIP INSTALL KEYBOARD
-        #if(keyboard.is_pressed(KEY)):
-            #client.publish("samardzi/button", 1)
-            #print("confirm")

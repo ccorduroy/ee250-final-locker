@@ -50,16 +50,12 @@ def kbd_thread():
 
 
 if __name__ == '__main__':
-    # setup the keyboard event listener
-    # lis = keyboard.Listener(on_press=on_press)
-    # lis.start() # start to listen on a separate thread
 
     thread = threading.Thread(target=kbd_thread)
     # thread.daemon = True
     # start the thread executing
     thread.start()
 
-    #this section is covered in publisher_and_subscriber_example.py
     client = mqtt.Client()
 
     # enable TLS, disable client-side certificates
