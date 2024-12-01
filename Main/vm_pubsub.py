@@ -1,18 +1,34 @@
 """EE 250L Lab 04 Starter Code
 
 Run vm_pubsub.py in a separate terminal on your VM."""
-
+from flask import Flask, jsonify
 import paho.mqtt.client as mqtt
 import time
 from pynput import keyboard
 import threading
 import ssl
+import json
+
+app = Flask(__name__)
 
 POT = None
 KEY = None
 
 LOCK_SEQ = [3, 15, 2, 10, 8]
 CURR_SEQ = []
+
+#route to collect most recent sequence
+#in grafana: http://<your-ip>:3000/api/lock_sequences
+@app.route('/api/lock_sequences', methods = ['GET'])
+def curr_sequences():
+    sequences = {
+        #Note: lock_seq is sent everytime everytime bc the json api plug in
+        #in grafana does not keep record of previous queries
+        "LOCK_SEQ": LOCK_SEQ,
+        "CURR_SEQ": CURR_SEQ
+    }
+    return jsonify(sequences)
+
 
 
 def on_connect(client, userdata, flags, rc):
@@ -56,6 +72,8 @@ if __name__ == '__main__':
     # start the thread executing
     thread.start()
 
+    
+
     client = mqtt.Client()
 
     # enable TLS, disable client-side certificates
@@ -69,6 +87,11 @@ if __name__ == '__main__':
     client.connect(host="broker.emqx.io", port=8883, keepalive=60)
     # PORT 8883 enables TLS encryption for data using this socket.
     client.loop_start()
+
+    #note: our in-lab stuff with grafana it said that grafana lstened on port 3000
+    #by default, but idk if this will work may need to change
+    app.run(host='0.0.0.0', port=3000)
+
 
     while True:
         #print("delete this line")
