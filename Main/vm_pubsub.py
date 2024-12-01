@@ -3,17 +3,24 @@
 Run vm_pubsub.py in a separate terminal on your VM."""
 
 import paho.mqtt.client as mqtt
-import time
+import time, os
 from pynput import keyboard
 import threading
 import ssl
+import json
 
+# globals
 POT = None
 KEY = None
 
-LOCK_SEQ = [3, 15, 2, 10, 8]
+LOCK_SEQ = [1, 2, 3, 4]
 CURR_SEQ = []
+UNLOCKED = None
 
+# change name to your file ->
+JSON = "lockdata.json"
+
+# -----------------------------------------------------------------
 
 def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code "+str(rc))
@@ -34,6 +41,7 @@ def pot_callback(client, userdata, message):
     global POT 
     POT =  int(message.payload.decode('utf-8'))
 
+# -----------------------------------------------------------------
 
 # parallel task/thread to read keyboard input
 def kbd_thread():
@@ -48,13 +56,34 @@ def kbd_thread():
         else:
             KEY = 0
 
+# -----------------------------------------------------------------
+
+def json_updater_thread():
+    # update JSON file on a timer with new values
+    while True:
+        data = {
+            "current number" : POT,
+            "current sequence" : CURR_SEQ,
+            "is unlocked" : UNLOCKED,
+            "timestamp" : int(time.time())
+        }
+
+        with open(JSON, "w") as f:
+            json.dump(data, f, indent = 4)
+
+        time.sleep(0.5) # update every 0.5s
+
+# -----------------------------------------------------------------
 
 if __name__ == '__main__':
 
+    UNLOCKED = 0
+
     thread = threading.Thread(target=kbd_thread)
-    # thread.daemon = True
+    json_thread = threading.Thread(target=json_updater_thread, daemon=True)
     # start the thread executing
     thread.start()
+    json_thread.start()
 
     client = mqtt.Client()
 
@@ -80,6 +109,7 @@ if __name__ == '__main__':
             if(POT == 0):
                 print("Resetting input.")
                 CURR_SEQ.clear()
+                UNLOCKED = 0
             else:
                 print("++ " + str(POT))
                 CURR_SEQ.append(POT)
@@ -90,9 +120,18 @@ if __name__ == '__main__':
         #if current sequence is equal to lock
         if(CURR_SEQ == LOCK_SEQ):
             print("Unlocked!")
+            UNLOCKED = 1
+            time.sleep(3)
+            print("Resetting Input")
+            CURR_SEQ.clear()
+            continue
 
 
         #if current sequence exceeds length
         if(len(CURR_SEQ) > len(LOCK_SEQ)):
-            print("Failed; Resetting input.")
+            print("Failed")
             CURR_SEQ.clear()
+            UNLOCKED = 0
+            time.sleep(1)
+            print("Resetting Input.")
+            continue
