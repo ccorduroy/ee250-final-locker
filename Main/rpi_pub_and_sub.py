@@ -7,7 +7,6 @@ import time, sys
 sys.path.append('../../Software/Python/')
 sys.path.append('../../Software/Python/grove_rgb_lcd')
 import grovepi
-import keyboard
 
 # --- ports
 button = 1 #A1
@@ -15,29 +14,18 @@ potentiometer = 0 #A0
 grovepi.pinMode(button, "INPUT")
 grovepi.pinMode(potentiometer, "INPUT")
 
-#-- keyboard interrupt key
-KEY = 'a' 
-
 def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code " + str(rc))
 
     #subscribe to topics of interest here
-    #client.subscribe("samardzi/led")    # add back callback
-    #client.message_callback_add("samardzi/led", led_callback )
+    #client.subscribe("samardzi/button")    # add back callback
+    #client.message_callback_add("samardzi/button", button_callback )
 
-    #print("subscribed to LED, LCD")
-
-#Default message callback. Please use custom callbacks.
-def on_message(client, userdata, msg):
-    print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
+    print("Transmitting Potentiometer data (MQTT):")
 
 #Default message callback. Please use custom callbacks.
-def callback_button(client, userdata, msg):
-    print("[" + msg.topic + "]" + str(msg.payload, "utf-8"))
-
-#Default message callback. Please use custom callbacks.
-def callback_pot(client, userdata, msg):
-    print("[" + msg.topic + "]" + str(msg.payload, "utf-8"))
+#def on_message(client, userdata, msg):
+    #print("on_message: " + msg.topic + " " + str(msg.payload, "utf-8"))
 
 #----------------------------------------------------------------------
 
@@ -60,18 +48,18 @@ if __name__ == '__main__':
 
         #only publish if there is a change in pot value
         if(num !=  temp):
-            #client.publish("samardzi/potentiometer", num)
+            client.publish("samardzi/pot", num)
             temp = num
-            print(num)
+            print("curr: " + str(num))
 
         # if button pressed (HIGH signal detected), publish confirmation to button
-        if (grovepi.digitalRead(button) > 0):
+        #if (grovepi.digitalRead(button) > 0):
             #client.publish("samardzi/button", 1)
-            print("confirm")
+            #print("confirm")
 
-        print(grovepi.digitalRead(button))
+        #print(grovepi.digitalRead(button))
 
         #INSTALL: PIP INSTALL KEYBOARD
-        if(keyboard.is_pressed(KEY)):
-            client.publish("samardzi/button", 1)
-            print("confirm")
+        #if(keyboard.is_pressed(KEY)):
+            #client.publish("samardzi/button", 1)
+            #print("confirm")
