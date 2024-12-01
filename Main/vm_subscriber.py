@@ -5,6 +5,12 @@ Run vm_subscriber.py in a separate terminal on your VM."""
 import paho.mqtt.client as mqtt
 import time
 
+POT = None
+BUTTON = None
+LOCK_SEQ = [3, 15, 2, 10, 8]
+CURR_SEQ = []
+
+
 def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code "+str(rc))
 
@@ -25,12 +31,16 @@ def on_message(client, userdata, msg):
 def pot_Callback(client, userdata, message):
     #if message.payloadFormatIndicator == 1:
     print("Locked in: " + message.payload.decode('utf-8'))
+    global POT 
+    POT =  int(message.payload.decode('utf-8'))
 
 
 
 def button_Callback(client, userdata, message):
     #if message.payloadFormatIndicator == 1:
     print(message.payload.decode('utf-8'))
+    global BUTTON
+    BUTTON = int(message.payload.decode('utf-8'))
 
 if __name__ == '__main__':
     #this section is covered in publisher_and_subscriber_example.py
@@ -43,6 +53,29 @@ if __name__ == '__main__':
     while True:
         #print("delete this line")
         time.sleep(1)
+
+        #adds potentimeter value to list.
+        #if POT is 0 and button is pushed
+        #list is reset
+        if(BUTTON == 1):
+            if(POT == 0):
+                print("List Reset")
+                CURR_SEQ.clear()
+            else:
+                CURR_SEQ.append(POT)
+                print(CURR_SEQ)
+
+        #if current sequence is equal to lock
+        if(CURR_SEQ == LOCK_SEQ):
+            print("Unlocked!!")
+
+
+        #if current sequenxy exceeds length
+        if(len(CURR_SEQ) > len(LOCK_SEQ)):
+            print("failure")
+            CURR_SEQ.clear()
+        
+
             
 
 
