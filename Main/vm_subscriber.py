@@ -70,7 +70,7 @@ if __name__ == '__main__':
             print("Unlocked!!")
 
 
-        #if current sequenxy exceeds length
+        #if current sequence exceeds length
         if(len(CURR_SEQ) > len(LOCK_SEQ)):
             print("failure")
             CURR_SEQ.clear()

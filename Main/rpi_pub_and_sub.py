@@ -7,12 +7,16 @@ import time, sys
 sys.path.append('../../Software/Python/')
 sys.path.append('../../Software/Python/grove_rgb_lcd')
 import grovepi
+import keyboard
 
 # --- ports
 button = 1 #A1
 potentiometer = 0 #A0
 grovepi.pinMode(button, "INPUT")
 grovepi.pinMode(potentiometer, "INPUT")
+
+#-- keyboard interrupt key
+KEY = 'a' 
 
 def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code " + str(rc))
@@ -56,7 +60,7 @@ if __name__ == '__main__':
 
         #only publish if there is a change in pot value
         if(num !=  temp):
-            #client.publish("samardzi/potentiometer", number)
+            #client.publish("samardzi/potentiometer", num)
             temp = num
             print(num)
 
@@ -66,3 +70,8 @@ if __name__ == '__main__':
             print("confirm")
 
         print(grovepi.digitalRead(button))
+
+        #INSTALL: PIP INSTALL KEYBOARD
+        if(keyboard.is_pressed(KEY)):
+            client.publish("samardzi/button", 1)
+            print("confirm")
