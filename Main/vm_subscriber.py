@@ -28,7 +28,7 @@ def on_message(client, userdata, msg):
 
 def pot_callback(client, userdata, message):
     #if message.payloadFormatIndicator == 1:
-    print("rec: " + message.payload.decode('utf-8'))
+    # print("rec: " + message.payload.decode('utf-8'))
     global POT 
     POT =  int(message.payload.decode('utf-8'))
 
@@ -75,6 +75,7 @@ if __name__ == '__main__':
                 print("Resetting input.")
                 CURR_SEQ.clear()
             else:
+                print("++ " + str(POT))
                 CURR_SEQ.append(POT)
                 print("Current sequence:")
                 print(CURR_SEQ)
