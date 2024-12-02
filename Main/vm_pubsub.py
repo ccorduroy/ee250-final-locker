@@ -140,6 +140,7 @@ if __name__ == '__main__':
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
-            time.sleep(2)
+            time.sleep(1)
             print("Resetting Input.")
+            time.sleep(1)
             continue
