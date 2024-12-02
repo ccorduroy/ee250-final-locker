@@ -1,7 +1,7 @@
 """EE 250L Lab 04 Starter Code
 
 Run vm_pubsub.py in a separate terminal on your VM."""
-from flask import Flask, jsonify
+from flask import Flask
 import paho.mqtt.client as mqtt
 import time
 from pynput import keyboard
@@ -21,7 +21,7 @@ CURR_SEQ = []
 JSON = "lockdata.json"
 
 #route to collect most recent sequence
-#in grafana: http://<your-ip>:3000/api/lock_sequences
+#in grafana: https://<your-ip>:3000/api/lock_sequences
 @app.route('/api/lock_sequences', methods = ['GET'])
 def curr_sequences():
     return JSON
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     UNLOCKED = 0
 
-    
+
     thread = threading.Thread(target=kbd_thread)
     json_thread = threading.Thread(target = json_updater_thread, daemon=True)
     # thread.daemon = True
@@ -108,9 +108,20 @@ if __name__ == '__main__':
     # PORT 8883 enables TLS encryption for data using this socket.
     client.loop_start()
 
+
+
     #note: our in-lab stuff with grafana it said that grafana lstened on port 3000
     #by default, but idk if this will work may need to change
-    app.run(host='0.0.0.0', port=3000)
+
+    #generated key with: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
+    #update to new file path for testing
+
+    #In Grafana: either configure to ignore validation or add certificate to systems trusted certs. 
+
+    #enable HTTPS using certificate and private key
+    app.run(host='0.0.0.0', port=3000, ssl_context = 
+    ('/home/isabella/ee250-final-locker/Main/server.crt', 
+    '/home/isabella/ee250-final-locker/Main/server.key'))
 
 
     while True:
