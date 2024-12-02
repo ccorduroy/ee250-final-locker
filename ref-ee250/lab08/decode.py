@@ -34,7 +34,7 @@ def get_peak_frqs(frq, fft):
 
 def get_number_from_frq(lower_frq, higher_frq):
     #TODO: given a lower frequency and higher frequency pair
-    #      return the corresponding key otherwise return '?' if no match is found
+    #      return the corresponding keys otherwise return '?' if no match is found
     return '?'
 
 def main(file):

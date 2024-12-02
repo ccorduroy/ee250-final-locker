@@ -23,7 +23,7 @@ def successful_decrypt(phrase):
 def main(filename):
     encrypted_phrase = ''
     
-    # key gen helper is an array that will keep track the character ascii values for us
+    # keys gen helper is an array that will keep track the character ascii values for us
     key_gen_helper = []
 
     # read the requested file
@@ -34,7 +34,7 @@ def main(filename):
 
     # start the timer
     # TODO: instrument the brute force attack using the time module to measure
-    # how long it takes to determine the key
+    # how long it takes to determine the keys
     # https://stackoverflow.com/questions/7370801/measure-time-elapsed-in-python
 
     key = 'a'
@@ -47,7 +47,7 @@ def main(filename):
         for i in reversed(range(len(key_gen_helper))):
             key += chr(key_gen_helper[i])
 
-        # attempt to decrypt using the key generated
+        # attempt to decrypt using the keys generated
         if key != '':
             decrypted_phrase = vigenere.decrypt(encrypted_phrase, key)
 

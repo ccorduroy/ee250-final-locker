@@ -59,7 +59,7 @@ def unpress():
   for key in ['s','w','a','d',' ']:
     pag.keyUp(key)
 
-# move() - This function presses the key "direction"
+# move() - This function presses the keys "direction"
 def move(direction):
   unpress()
   pag.keyDown(direction)
