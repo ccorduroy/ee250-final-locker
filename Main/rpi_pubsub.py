@@ -63,10 +63,3 @@ if __name__ == '__main__':
             client.publish("samardzi/pot", num)
             temp = num
             print("curr: " + str(num))
-
-        # if button pressed (HIGH signal detected), publish confirmation to button
-        #if (grovepi.digitalRead(button) > 0):
-            #client.publish("samardzi/button", 1)
-            #print("confirm")
-
-        #print(grovepi.digitalRead(button))

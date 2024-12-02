@@ -1,6 +1,11 @@
-"""EE 250L Lab 04 Starter Code
+""" EE 250 Final Project: VM Pubsub
+- handles primary computations and data processing
+- manages JSON export of important information
+- data is collected from rpi_pubsub.py via encrypted MQTT
 
-Run vm_pubsub.py in a separate terminal on your VM."""
+THIS SCRIPT IS WHERE MOST OF YOUR INTERACTION HAPPENS. KEEP THIS WINDOW OPEN TO SEE BACKEND STATISTICS
+AND HANDLE KEYPRESS EVENTS.
+"""
 
 import paho.mqtt.client as mqtt
 import time, os
@@ -127,12 +132,14 @@ if __name__ == '__main__':
             CURR_SEQ.clear()
             continue
 
-
+# TODO: make it so if current sequence != key and you have reached at least the length of key, you clear
+# TODO: separate reset button on keyboard
+# TODO: button on html side that sends key presses via mqtt
         #if current sequence exceeds length
-        if(len(CURR_SEQ) > len(LOCK_SEQ)):
+        if((len(CURR_SEQ) >= len(LOCK_SEQ))) and (CURR_SEQ != LOCK_SEQ):
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
-            time.sleep(1)
+            time.sleep(2)
             print("Resetting Input.")
             continue
