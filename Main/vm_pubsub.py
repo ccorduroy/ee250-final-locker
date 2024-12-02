@@ -50,7 +50,7 @@ def kbd_thread():
         # must hit enter to complete the input
         k = input("")
         if k == 'a':
-            client.publish("samardzi/key", "(click)")
+            client.publish("samardzi/keys", "(click)")
             print("(click)")
             KEY = 1
         else:
@@ -62,10 +62,11 @@ def json_updater_thread():
     # update JSON file on a timer with new values
     while True:
         data = {
-            "current number" : POT,
-            "current sequence" : CURR_SEQ,
-            "is unlocked" : UNLOCKED,
-            "timestamp" : int(time.time())
+            "current number": POT,
+            "current sequence": CURR_SEQ,
+            "solution sequence": LOCK_SEQ,
+            "is unlocked": UNLOCKED,
+            "timestamp": int(time.time())
         }
 
         with open(JSON, "w") as f:

@@ -1,8 +1,12 @@
 {
-    "current number": 9,
-    "current sequence": [
-        9
+    "current number": 8,
+    "current sequence": [],
+    "solution sequence": [
+        1,
+        2,
+        3,
+        4
     ],
     "is unlocked": 0,
-    "timestamp": 1733062213
+    "timestamp": 1733145246
 }

@@ -19,8 +19,8 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code " + str(rc))
 
     #subscribe to topics of interest here
-    client.subscribe("samardzi/key")    # add back callback
-    client.message_callback_add("samardzi/key", key_callback )
+    client.subscribe("samardzi/keys")    # add back callback
+    client.message_callback_add("samardzi/keys", key_callback )
 
     print("Transmitting Potentiometer data (MQTT):")
 
