@@ -1,50 +1,32 @@
-"""EE 250L Lab 04 Starter Code
+""" EE 250 Final Project: VM Pubsub
+- handles primary computations and data processing
+- manages JSON export of important information
+- data is collected from rpi_pubsub.py via encrypted MQTT
 
-Run vm_pubsub.py in a separate terminal on your VM."""
-from flask import Flask
+THIS SCRIPT IS WHERE MOST OF YOUR INTERACTION HAPPENS. KEEP THIS WINDOW OPEN TO SEE BACKEND STATISTICS
+AND HANDLE KEYPRESS EVENTS.
+"""
+
 import paho.mqtt.client as mqtt
-import time
+import time, os
 from pynput import keyboard
 import threading
 import ssl
 import json
 
-app = Flask(__name__)
-
+# globals
 POT = None
 KEY = None
+RESET = None
+
+LOCK_SEQ = [1, 2, 3, 4]
+CURR_SEQ = []
 UNLOCKED = None
 
-LOCK_SEQ = [3, 15, 2, 10, 8]
-CURR_SEQ = []
-
+# change name to your file ->
 JSON = "lockdata.json"
 
-#route to collect most recent sequence
-#in grafana: https://<your-ip>:3000/api/lock_sequences
-@app.route('/api/lock_sequences', methods = ['GET'])
-def curr_sequences():
-    return JSON
-
-
-
-def json_updater_thread():
-    while True:
-        sequences = {
-            #Note: lock_seq is sent everytime everytime bc the json api plug in
-            #in grafana does not keep record of previous queries
-            "LOCK_SEQ": LOCK_SEQ,
-            "CURR_SEQ": CURR_SEQ,
-            "POT": POT,
-            "UNLOCKED": UNLOCKED,
-            "timestamp": int(time.time())
-        }
-
-        with open(JSON, "w") as f:
-            json.dump(sequences, f, indent = 4)
-
-        time.sleep(0.5)    
-
+# -----------------------------------------------------------------
 
 def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code "+str(rc))
@@ -65,34 +47,53 @@ def pot_callback(client, userdata, message):
     global POT 
     POT =  int(message.payload.decode('utf-8'))
 
+# -----------------------------------------------------------------
 
 # parallel task/thread to read keyboard input
 def kbd_thread():
     global KEY
+    global RESET
     while True:
         # must hit enter to complete the input
         k = input("")
         if k == 'a':
-            client.publish("samardzi/key", "(click)")
+            client.publish("samardzi/keys", "(click)")
             print("(click)")
             KEY = 1
+        elif k == 'd':
+            RESET = 1
         else:
             KEY = 0
 
+# -----------------------------------------------------------------
+
+def json_updater_thread():
+    # update JSON file on a timer with new values
+    while True:
+        data = {
+            "current number": POT,
+            "current sequence": CURR_SEQ,
+            "solution sequence": LOCK_SEQ,
+            "is unlocked": UNLOCKED,
+            "timestamp": int(time.time())
+        }
+
+        with open(JSON, "w") as f:
+            json.dump(data, f, indent = 4)
+
+        time.sleep(0.5) # update every 0.5s
+
+# -----------------------------------------------------------------
 
 if __name__ == '__main__':
 
     UNLOCKED = 0
 
-
     thread = threading.Thread(target=kbd_thread)
-    json_thread = threading.Thread(target = json_updater_thread, daemon=True)
-    # thread.daemon = True
+    json_thread = threading.Thread(target=json_updater_thread, daemon=True)
     # start the thread executing
     thread.start()
     json_thread.start()
-
-    
 
     client = mqtt.Client()
 
@@ -108,39 +109,16 @@ if __name__ == '__main__':
     # PORT 8883 enables TLS encryption for data using this socket.
     client.loop_start()
 
-
-
-    #note: our in-lab stuff with grafana it said that grafana lstened on port 3000
-    #by default, but idk if this will work may need to change
-
-    #generated key with: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.key -out server.crt
-    #update to new file path for testing
-
-    #In Grafana: either configure to ignore validation or add certificate to systems trusted certs. 
-
-    #enable HTTPS using certificate and private key
-    app.run(host='0.0.0.0', port=3000, ssl_context = 
-    ('/home/isabella/ee250-final-locker/Main/server.crt', 
-    '/home/isabella/ee250-final-locker/Main/server.key'))
-
-
     while True:
         #print("delete this line")
         time.sleep(0.5)
 
-
         #adds potentimeter value to list
-        # if POT is 0 and button is pushed list is reset
         if(KEY == 1 and POT is not None):
-            if(POT == 0):
-                print("Resetting input.")
-                CURR_SEQ.clear()
-                UNLOCKED = 0
-            else:
-                print("++ " + str(POT))
-                CURR_SEQ.append(POT)
-                print("Current sequence:")
-                print(CURR_SEQ)
+            print("++ " + str(POT))
+            CURR_SEQ.append(POT)
+            print("Current sequence:")
+            print(CURR_SEQ)
             KEY = 0
 
         #if current sequence is equal to lock
@@ -148,16 +126,27 @@ if __name__ == '__main__':
             print("Unlocked!")
             UNLOCKED = 1
             time.sleep(3)
-            print("Resetting input")
+            print("Resetting Input")
             CURR_SEQ.clear()
             continue
-
-
-        #if current sequence exceeds length
-        if(len(CURR_SEQ) > len(LOCK_SEQ)):
-            print("Failed; Resetting input.")
-            UNLOCKED = 0
+        
+# TODO: separate reset button on keyboard
+        if(RESET == 1):
+            print("Resetting input.")
             CURR_SEQ.clear()
+            UNLOCKED = 0
+            RESET = 0
+
+# TODO: button on html side that sends key presses via mqtt
+        #if current sequence exceeds length
+
+
+# TODO: make it so if current sequence != key and you have reached at least the length of key, you clear
+        if((len(CURR_SEQ) >= len(LOCK_SEQ))) and (CURR_SEQ != LOCK_SEQ):
+            print("Failed")
+            CURR_SEQ.clear()
+            UNLOCKED = 0
             time.sleep(1)
-            print("Resetting Input")
+            print("Resetting Input.")
+            time.sleep(1)
             continue
