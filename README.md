@@ -49,7 +49,8 @@ You should have this terminal open to type in.
 
 - turn the potentiometer to change the current selected number 0-9.
 - the current number will be printed in `rpi_pubsub.py` and visible on the HTTPS client (refresh rate: 2/sec).
-- to lock in the current number, press the "a" key.
+- to lock in the current number, press the "a" key in `vm_pubsub.py`, or use the "enter" button on the frontend.
+- to reset your progress and clear the input code, press the "d" key in `vm_pubsub.py` or use the "reset" button on the frontend.
 - if you get the sequence correct (compared to the key specified in `vm_pubsub.py`), the lock will unlock. It will lock and reset if you get
   the sequence wrong. you can also reset anytime by locking in the number 0.
 
