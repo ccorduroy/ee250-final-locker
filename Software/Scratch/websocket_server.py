@@ -300,7 +300,7 @@ class WebSocketHandler(StreamRequestHandler):
         if key:
             key = key.group(1)
         else:
-            logger.warning("Client tried to connect but was missing a key")
+            logger.warning("Client tried to connect but was missing a keys")
             self.keep_alive = False
             return
         response = self.make_handshake_response(key)

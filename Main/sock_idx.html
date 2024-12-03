@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+    <title> RPi Lock Client </title>
+</head>
+<body>
+    <h1> JSON Data Viewer </h1>
+    <pre id="json-data">Waiting... </pre>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        const socket = io('https://localhost:3000');
+
+        socket.on('update', (data) => {
+            document.getElementById('json-data').textContent = JSON.stringify(data, null 2);
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to Server');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected to Server');
+        });
+    </script>
+</body>
+</html>

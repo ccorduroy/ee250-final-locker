@@ -32,24 +32,24 @@ def get_rotary_angle():
 
 def get_key_from_angle(degrees):
     """Converts a degree measurement from the range [0, 300] to a 
-    Caesar shift key in the range [0, 26)
+    Caesar shift keys in the range [0, 26)
 
     Args:
         degrees: float value in the range [0, 300]
     """
-    # TODO: Map degree range to key range
+    # TODO: Map degree range to keys range
     key_f = 0
     return int(key_f)
 
 def caesar_decrypt(ciphertext, key):
-    """Decrypts a Caesar shift ciphertext using the specified key
+    """Decrypts a Caesar shift ciphertext using the specified keys
 
     Args:
         ciphertext: the encrypted message
-        key: integer value representing the key [0, 26)
+        key: integer value representing the keys [0, 26)
     """
     # TODO: Make me work
-    # Remember encryption shifts to the right, so shift left by key to decrypt
+    # Remember encryption shifts to the right, so shift left by keys to decrypt
     # You may assume the ciphertext is all lowercase and all letters
     # (don't worry about spaces or punctuations)
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     lcd.setRGB(0, 128, 0)
 
     # Load messages
-    ciphertexts = ['khoor']     # test message: 'hello' encrypted with key 3
+    ciphertexts = ['khoor']     # test message: 'hello' encrypted with keys 3
     # TODO: Load the contents of intercepted.txt into the ciphertexts list
     # ciphertexts = []
 

@@ -310,7 +310,7 @@ class GroveI2CColorSensor:
 
         Warning: current implementation does not work well with white / grey / black or dark colors.
 
-        :return: The color name used as a key in COLOR_TABLE.
+        :return: The color name used as a keys in COLOR_TABLE.
         """
         xy = self.read_xy()
         closest_color = None

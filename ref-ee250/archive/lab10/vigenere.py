@@ -12,11 +12,11 @@ def encrypt(phrase, key):
 			# converting letters to what number letter they are in the alphabet
 			key_char_num = ord(key[key_idx]) - ord('a')
 			phrase_char_num = ord(phrase[i]) - ord('a')
-			# add the current key character to the current phrase character
+			# add the current keys character to the current phrase character
 			new_phrase_char_num = (phrase_char_num + key_char_num) % 26
 			# convert the number into the new character
 			new_phrase += chr(new_phrase_char_num + ord('a'))
-			# increment the key
+			# increment the keys
 			key_idx = (key_idx + 1) % len(key)
 		# if it is not a letter of the alphabet, leave it alone
 		else:
@@ -38,11 +38,11 @@ def decrypt(phrase, key):
 			# converting letters to what number letter they are in the alphabet
 			key_char_num = ord(key[key_idx]) - ord('a')
 			phrase_char_num = ord(phrase[i]) - ord('a')
-			# subtract the current key character to the current phrase character
+			# subtract the current keys character to the current phrase character
 			new_phrase_char_num = (phrase_char_num - key_char_num) % 26
 			# convert the number into the new character
 			new_phrase += chr(new_phrase_char_num + ord('a'))
-			# increment the key
+			# increment the keys
 			key_idx = (key_idx + 1) % len(key)
 		# if it is not a letter of the alphabet, leave it alone
 		else:

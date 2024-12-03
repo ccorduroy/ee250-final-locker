@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+    <title>RPi Digital Lock</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+        // to maintain JSON formatting:
+        #data: {
+            white-space: pre-wrap;
+            background: #f4f4f4;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>RPi Digital Lock</h1>
+    <div id = "data">Waiting...</div>
+
+    <button id="trigger">enter</button>
+    <button id="reset">reset</button>
+
+    <script>
+        async function fetchData() {
+            try {
+                // make a GET request to fetch data
+                const response = await fetch('/data', { cache: 'no-cache' });
+                if (!response.ok) {
+                    throw new Error(`HTTPS error: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Custom formatting to display each element on a new line without brackets or quotes
+                let formattedData = '';
+                for (let key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        formattedData += `${key}: ${data[key]}<br>`;
+                    }
+                }
+
+                // update displayed data
+                document.getElementById('data').innerHTML = formattedData;
+            } catch (error) {
+                document.getElementById('data').textContent = `Fetch Error: ${error.message}`;
+            }
+        }
+
+        // refresh every 0.5 sec
+        setInterval(fetchData, 500);
+    </script>
+
+    <script>
+        document.getElementById("trigger").addEventListener("click", async () => {
+            try {
+                const response = await fetch('/trigger', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({status : 'pressed'})
+                });
+
+                if(response.ok) {
+                    console.log('mqtt event triggered successfully');
+                } else {
+                    console.error('failed to trigger mqtt event');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById("reset").addEventListener("click", async () => {
+            try {
+                const response = await fetch('/trigger', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({status : 'reset'})
+                });
+
+                if(response.ok) {
+                    console.log('mqtt event triggered successfully');
+                } else {
+                    console.error('failed to trigger mqtt event');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -19,8 +19,8 @@ def on_connect(client, userdata, flags, rc):
     print("Connected to server (i.e., broker) with result code " + str(rc))
 
     #subscribe to topics of interest here
-    client.subscribe("samardzi/key")    # add back callback
-    client.message_callback_add("samardzi/key", key_callback )
+    client.subscribe("samardzi/keys")    # add back callback
+    client.message_callback_add("samardzi/keys", key_callback )
 
     print("Transmitting Potentiometer data (MQTT):")
 
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     while True:
         time.sleep(0.25)
 
-        #read potentionmeter
+        #read potentiometer
         pot = grovepi.analogRead(potentiometer)
         num = int(pot / 103)     # splits potentiometer into 10 segments
 
@@ -63,10 +63,3 @@ if __name__ == '__main__':
             client.publish("samardzi/pot", num)
             temp = num
             print("curr: " + str(num))
-
-        # if button pressed (HIGH signal detected), publish confirmation to button
-        #if (grovepi.digitalRead(button) > 0):
-            #client.publish("samardzi/button", 1)
-            #print("confirm")
-
-        #print(grovepi.digitalRead(button))

@@ -17,11 +17,11 @@ import json
 # globals
 POT = None
 KEY = None
+UNLOCKED = None
 RESET = None
 
 LOCK_SEQ = [1, 2, 3, 4]
 CURR_SEQ = []
-UNLOCKED = None
 
 # change name to your file ->
 JSON = "lockdata.json"
@@ -35,6 +35,9 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("samardzi/pot")
     client.message_callback_add("samardzi/pot", pot_callback)
 
+    client.subscribe("samardzi/keys")
+    client.message_callback_add("samardzi/keys", key_callback)
+
     print("Receiving Potentiometer data (MQTT)")
 
 #Default message callback. Please use custom callbacks.
@@ -47,6 +50,18 @@ def pot_callback(client, userdata, message):
     global POT 
     POT =  int(message.payload.decode('utf-8'))
 
+def key_callback(client, userdata, message):
+    rec =  message.payload.decode('utf-8')
+    print("key: " + rec)
+    global KEY
+    global RESET
+    if rec == "frontend_rec" or rec == "backend_rec":
+        KEY = 1
+    elif rec == "frontend_reset":
+        RESET = 1
+    else:
+        KEY = 0
+        RESET = 0
 # -----------------------------------------------------------------
 
 # parallel task/thread to read keyboard input
@@ -57,8 +72,7 @@ def kbd_thread():
         # must hit enter to complete the input
         k = input("")
         if k == 'a':
-            client.publish("samardzi/keys", "(click)")
-            print("(click)")
+            client.publish("samardzi/keys", "backend_rec")
             KEY = 1
         elif k == 'd':
             RESET = 1
@@ -125,28 +139,24 @@ if __name__ == '__main__':
         if(CURR_SEQ == LOCK_SEQ):
             print("Unlocked!")
             UNLOCKED = 1
+            # safety measure for edge case that key is registered as pressed before or during sleep
+            KEY = 0
             time.sleep(3)
-            print("Resetting Input")
+            print("Resetting Input.")
             CURR_SEQ.clear()
-            continue
-        
-# TODO: separate reset button on keyboard
-        if(RESET == 1):
+            UNLOCKED = 0
+
+        # separate reset button on keyboard
+        if (RESET == 1):
             print("Resetting input.")
             CURR_SEQ.clear()
             UNLOCKED = 0
             RESET = 0
 
-# TODO: button on html side that sends key presses via mqtt
-        #if current sequence exceeds length
-
-
-# TODO: make it so if current sequence != key and you have reached at least the length of key, you clear
-        if((len(CURR_SEQ) >= len(LOCK_SEQ))) and (CURR_SEQ != LOCK_SEQ):
+        #failure state
+        if(len(CURR_SEQ) >= len(LOCK_SEQ)) and (CURR_SEQ != LOCK_SEQ):
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
             time.sleep(1)
             print("Resetting Input.")
-            time.sleep(1)
-            continue

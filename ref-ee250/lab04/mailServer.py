@@ -33,7 +33,7 @@ def get_mailbox_callback():
     # We will skip explaining how this object gets here because the answer is
     # a bit long and out of the scope of this lab.
 
-    # Extract the key/value field for password
+    # Extract the keys/value field for password
     password = request.args.get('password')
 
     # Check that the password is valid
