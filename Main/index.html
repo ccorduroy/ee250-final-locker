@@ -24,6 +24,8 @@
     <h1>RPi Digital Lock</h1>
     <div id = "data">Waiting...</div>
 
+    <button id="trigger">enter value</button>
+
     <script>
         async function fetchData() {
             try {
@@ -51,6 +53,28 @@
 
         // refresh every 0.5 sec
         setInterval(fetchData, 500);
+    </script>
+
+    <script>
+        document.getElementById("trigger").addEventListener("click", async () => {
+            try {
+                const response = await fetch('/trigger', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({status : 'pressed'})
+                });
+
+                if(response.ok) {
+                    console.log('mqtt event triggered successfully');
+                } else {
+                    console.error('failed to trigger mqtt event');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
     </script>
 </body>
 </html>

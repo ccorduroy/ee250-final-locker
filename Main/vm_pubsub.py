@@ -132,11 +132,12 @@ if __name__ == '__main__':
             CURR_SEQ.clear()
             continue
 
-# TODO: make it so if current sequence != key and you have reached at least the length of key, you clear
-# TODO: separate reset button on keyboard
-# TODO: button on html side that sends key presses via mqtt
-        #if current sequence exceeds length
-        if((len(CURR_SEQ) >= len(LOCK_SEQ))) and (CURR_SEQ != LOCK_SEQ):
+# DONE: make it so if current sequence != key and you have reached at least the length of key, you clear
+# TODO: separate reset button on keyboard - do this on testbed branch
+# TODO: button on html side that sends key presses via mqtt - do this on button branch
+
+        #failure state
+        if(len(CURR_SEQ) >= len(LOCK_SEQ)) and (CURR_SEQ != LOCK_SEQ):
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
