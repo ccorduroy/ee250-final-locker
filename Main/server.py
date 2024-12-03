@@ -1,15 +1,22 @@
-from flask import Flask, jsonify, send_from_directory
-from flask_socketio import SocketIO, emit
+from flask import Flask, jsonify, send_from_directory, request
 import json
+import paho.mqtt.client as mqtt
 import time, threading
+import ssl
 
 # nothing but a filename
 JSON = "lockdata.json"
 
 # -----------------------------------------------------------------
+# MQTT
+
+def on_connect(client, userdata, flags, rc):
+    print("Connected to MQTT server. RC "+str(rc))
+
+# -----------------------------------------------------------------
+# HTTPS
 
 app = Flask(__name__)
-#socketio = SocketIO(app)
 
 data = {"message": "no data received yet"}
 
@@ -24,19 +31,15 @@ def get_data():
         data = json.load(file)
     return jsonify(data)
 
-#@socketio.on('connect')
-#def on_connect():
-    #print("[Flask_SocketIO] Client connected")
-
-# thread to constantly update from json
-#def update():
-    #while True:
-        #with open(JSON, "r") as file:
-            #data = json.load(file)
-            #data = jsonify(data)
-        #socketio.emit('update', data)
-        #time.sleep(0.5)
-
+@app.route('/trigger', methods=['POST'])
+def trigger_event():
+    trigger_data = request.json
+    if trigger_data.get('status') == 'pressed':
+        # publish a mqtt message to the keys topic
+        client.publish("samardzi/keys", "frontend_rec")
+        return jsonify({"message": "frontend mqtt event triggered"})
+    else:
+        return jsonify({"error": "ERR"}), 400
 # -----------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -48,6 +51,16 @@ if __name__ == '__main__':
 
     # generate keys with:
     # TODO: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout server.keys -out server.crt
+
+    # open mqtt before HTTP
+    client = mqtt.Client()
+
+    # enable TLS, disable client-side certificates
+    client.tls_set(
+        tls_version=ssl.PROTOCOL_TLSv1_2
+    )
+
+    client.connect(host="broker.emqx.io", port=8883, keepalive=60)
 
     # enable HTTPS with self-signed cert and private keys at your directory location
     app.run(host = '0.0.0.0', port=3000, ssl_context =

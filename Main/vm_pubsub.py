@@ -17,10 +17,10 @@ import json
 # globals
 POT = None
 KEY = None
+UNLOCKED = None
 
 LOCK_SEQ = [1, 2, 3, 4]
 CURR_SEQ = []
-UNLOCKED = None
 
 # change name to your file ->
 JSON = "lockdata.json"
@@ -34,6 +34,9 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("samardzi/pot")
     client.message_callback_add("samardzi/pot", pot_callback)
 
+    client.subscribe("samardzi/keys")
+    client.message_callback_add("samardzi/keys", key_callback)
+
     print("Receiving Potentiometer data (MQTT)")
 
 #Default message callback. Please use custom callbacks.
@@ -46,6 +49,15 @@ def pot_callback(client, userdata, message):
     global POT 
     POT =  int(message.payload.decode('utf-8'))
 
+def key_callback(client, userdata, message):
+    rec =  message.payload.decode('utf-8')
+    print("key: " + rec)
+    global KEY
+    if rec == "frontend_rec":
+        KEY = 1
+    else:
+        KEY = 0
+
 # -----------------------------------------------------------------
 
 # parallel task/thread to read keyboard input
@@ -56,7 +68,6 @@ def kbd_thread():
         k = input("")
         if k == 'a':
             client.publish("samardzi/keys", "(click)")
-            print("(click)")
             KEY = 1
         else:
             KEY = 0
@@ -112,15 +123,10 @@ if __name__ == '__main__':
         #adds potentimeter value to list
         # if POT is 0 and button is pushed list is reset
         if(KEY == 1 and POT is not None):
-            if(POT == 0):
-                print("Resetting input.")
-                CURR_SEQ.clear()
-                UNLOCKED = 0
-            else:
-                print("++ " + str(POT))
-                CURR_SEQ.append(POT)
-                print("Current sequence:")
-                print(CURR_SEQ)
+            print("++ " + str(POT))
+            CURR_SEQ.append(POT)
+            print("Current sequence:")
+            print(CURR_SEQ)
             KEY = 0
 
         #if current sequence is equal to lock
@@ -132,11 +138,12 @@ if __name__ == '__main__':
             CURR_SEQ.clear()
             continue
 
-# TODO: make it so if current sequence != key and you have reached at least the length of key, you clear
-# TODO: separate reset button on keyboard
-# TODO: button on html side that sends key presses via mqtt
-        #if current sequence exceeds length
-        if((len(CURR_SEQ) >= len(LOCK_SEQ))) and (CURR_SEQ != LOCK_SEQ):
+# DONE: make it so if current sequence != key and you have reached at least the length of key, you clear
+# TODO: separate reset button on keyboard - do this on testbed branch
+# TODO: button on html side that sends key presses via mqtt - do this on button branch
+
+        #failure state
+        if(len(CURR_SEQ) >= len(LOCK_SEQ)) and (CURR_SEQ != LOCK_SEQ):
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
