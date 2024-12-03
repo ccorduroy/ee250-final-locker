@@ -18,6 +18,7 @@ import json
 POT = None
 KEY = None
 UNLOCKED = None
+RESET = None
 
 LOCK_SEQ = [1, 2, 3, 4]
 CURR_SEQ = []
@@ -63,12 +64,16 @@ def key_callback(client, userdata, message):
 # parallel task/thread to read keyboard input
 def kbd_thread():
     global KEY
+    global RESET
     while True:
         # must hit enter to complete the input
         k = input("")
         if k == 'a':
             client.publish("samardzi/keys", "(click)")
+            print("(click)")
             KEY = 1
+        elif k == 'd':
+            RESET = 1
         else:
             KEY = 0
 
@@ -134,20 +139,19 @@ if __name__ == '__main__':
             print("Unlocked!")
             UNLOCKED = 1
             time.sleep(3)
-            print("Resetting Input")
+            print("Resetting Input.")
             CURR_SEQ.clear()
-            continue
 
-# DONE: make it so if current sequence != key and you have reached at least the length of key, you clear
 # TODO: separate reset button on keyboard - do this on testbed branch
-# TODO: button on html side that sends key presses via mqtt - do this on button branch
+        if (RESET == 1):
+            print("Resetting input.")
+            CURR_SEQ.clear()
+            UNLOCKED = 0
+            RESET = 0
 
         #failure state
         if(len(CURR_SEQ) >= len(LOCK_SEQ)) and (CURR_SEQ != LOCK_SEQ):
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
-            time.sleep(1)
             print("Resetting Input.")
-            time.sleep(1)
-            continue
