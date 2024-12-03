@@ -35,8 +35,12 @@ def get_data():
 def trigger_event():
     trigger_data = request.json
     if trigger_data.get('status') == 'pressed':
-        # publish a mqtt message to the keys topic
+        # publish a REC mqtt message to the keys topic
         client.publish("samardzi/keys", "frontend_rec")
+        return jsonify({"message": "frontend mqtt event triggered"})
+    elif trigger_data.get('status') == 'reset':
+        # publish a RESET mqtt message to the keys topic
+        client.publish("samardzi/keys", "frontend_reset")
         return jsonify({"message": "frontend mqtt event triggered"})
     else:
         return jsonify({"error": "ERR"}), 400

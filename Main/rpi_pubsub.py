@@ -54,7 +54,7 @@ if __name__ == '__main__':
     while True:
         time.sleep(0.25)
 
-        #read potentionmeter
+        #read potentiometer
         pot = grovepi.analogRead(potentiometer)
         num = int(pot / 103)     # splits potentiometer into 10 segments
 

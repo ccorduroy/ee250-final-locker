@@ -54,10 +54,14 @@ def key_callback(client, userdata, message):
     rec =  message.payload.decode('utf-8')
     print("key: " + rec)
     global KEY
-    if rec == "frontend_rec":
+    global RESET
+    if rec == "frontend_rec" or rec == "backend_rec":
         KEY = 1
+    elif rec == "frontend_reset":
+        RESET = 1
     else:
         KEY = 0
+        RESET = 0
 
 # -----------------------------------------------------------------
 
@@ -69,8 +73,7 @@ def kbd_thread():
         # must hit enter to complete the input
         k = input("")
         if k == 'a':
-            client.publish("samardzi/keys", "(click)")
-            print("(click)")
+            client.publish("samardzi/keys", "backend_rec")
             KEY = 1
         elif k == 'd':
             RESET = 1
@@ -138,9 +141,12 @@ if __name__ == '__main__':
         if(CURR_SEQ == LOCK_SEQ):
             print("Unlocked!")
             UNLOCKED = 1
+            # safety measure for edge case that key is registered as pressed before or during sleep
+            KEY = 0
             time.sleep(3)
             print("Resetting Input.")
             CURR_SEQ.clear()
+            UNLOCKED = 0
 
 # TODO: separate reset button on keyboard - do this on testbed branch
         if (RESET == 1):
@@ -154,4 +160,5 @@ if __name__ == '__main__':
             print("Failed")
             CURR_SEQ.clear()
             UNLOCKED = 0
+            time.sleep(1)
             print("Resetting Input.")
