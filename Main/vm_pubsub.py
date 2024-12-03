@@ -62,7 +62,6 @@ def key_callback(client, userdata, message):
     else:
         KEY = 0
         RESET = 0
-
 # -----------------------------------------------------------------
 
 # parallel task/thread to read keyboard input
@@ -129,7 +128,6 @@ if __name__ == '__main__':
         time.sleep(0.5)
 
         #adds potentimeter value to list
-        # if POT is 0 and button is pushed list is reset
         if(KEY == 1 and POT is not None):
             print("++ " + str(POT))
             CURR_SEQ.append(POT)
@@ -148,7 +146,7 @@ if __name__ == '__main__':
             CURR_SEQ.clear()
             UNLOCKED = 0
 
-# TODO: separate reset button on keyboard - do this on testbed branch
+        # separate reset button on keyboard
         if (RESET == 1):
             print("Resetting input.")
             CURR_SEQ.clear()
