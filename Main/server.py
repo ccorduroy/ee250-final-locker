@@ -64,7 +64,7 @@ if __name__ == '__main__':
         tls_version=ssl.PROTOCOL_TLSv1_2
     )
 
-    client.connect(host="broker.hivemq.com", port=8883, keepalive=60)
+    client.connect(host="broker.emqx.io", port=8883, keepalive=60)
 
     # enable HTTPS with self-signed cert and private keys at your directory location
     app.run(host = '0.0.0.0', port=3000, ssl_context =
