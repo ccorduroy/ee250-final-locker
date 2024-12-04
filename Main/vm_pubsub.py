@@ -119,7 +119,7 @@ if __name__ == '__main__':
     # begin connection
     client.on_message = on_message
     client.on_connect = on_connect
-    client.connect(host="broker.emqx.io", port=8883, keepalive=60)
+    client.connect(host="broker.hivemq.com", port=8883, keepalive=60)
     # PORT 8883 enables TLS encryption for data using this socket.
     client.loop_start()
 
